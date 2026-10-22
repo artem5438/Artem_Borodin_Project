@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { StyleSheet, View, Text, Image, ScrollView } from "react-native";
-import { SafeAreaProvider, SafeAreaView, } from "react-native-safe-area-context";
+import { FlatList } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { ICharacter } from "./types/character";
 import { CharacterCard } from "./components/CharacterCard/CharacterCard";
 
@@ -17,31 +17,33 @@ interface ResultCharacters {
 
 function App() {
   const [characters, setCharacters] = useState<ICharacter[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
+  const loadCharacters = () => {
+    setRefreshing(true);
     axios.get<ResultCharacters>('https://rickandmortyapi.com/api/character').then(result => {
       setCharacters(result.data.results);
+      setRefreshing(false);
     });
+  };
+
+  useEffect(() => {
+    loadCharacters();
   }, []);
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView>
-        <ScrollView>
-          {characters.map((character) => (
-            <CharacterCard character={character} />
-            ))}
-        </ScrollView>
+      <SafeAreaView style={{ flex: 1 }}>
+        <FlatList
+          data={characters}
+          keyExtractor={(item: ICharacter) => String(item.id)}
+          renderItem={({ item }: { item: ICharacter }) => <CharacterCard character={item} />}
+          refreshing={refreshing}
+          onRefresh={loadCharacters}
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    color: "red",
-    fontSize: 32,
-  },
-});
 
 export default App;
