@@ -4,10 +4,12 @@ import {FlatList, StyleSheet, TouchableOpacity, View} from "react-native";
 import { ICharacter } from "../types/character";
 import { ResultCharacters } from "../types/request";
 import { CharacterCard } from "../components/CharacterCard/CharacterCard";
-import { useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+
+type HomeNavigation = NavigationProp<{ Character: { id: number } }>;
 
 export const HomeScreen = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<HomeNavigation>();
     const [characters, setCharacters] = useState<ICharacter[]>([]);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -25,7 +27,7 @@ export const HomeScreen = () => {
     <View style={styles.container}>
       <FlatList
         data={characters}
-        renderItem={({ item }) => (
+        renderItem={({ item }: { item: ICharacter }) => (
           <TouchableOpacity onPress={() => navigation.navigate('Character', { id: item.id })}>
             <CharacterCard character={item} />
           </TouchableOpacity>
